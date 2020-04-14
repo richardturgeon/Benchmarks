@@ -9,21 +9,41 @@ import random
 import numpy as np
 import pandas as pd
 
-import keras
-from keras import backend as K
-from keras import optimizers
-from keras.models import Model
-from keras.layers import Input, Dense, Dropout
-from keras.callbacks import Callback, ModelCheckpoint, ReduceLROnPlateau, LearningRateScheduler, TensorBoard
+##import tensorflow as tf2
+##import tensorflow.compat.v1 as tf
+
+import tensorflow as tf
+TFV1 = False
+TFV2 = False
+
+try:
+    import keras
+    from keras import backend as K
+    from keras import optimizers
+    from keras.models import Model
+    from keras.layers import Input, Dense, Dropout
+    from keras.callbacks import Callback, ModelCheckpoint, ReduceLROnPlateau, LearningRateScheduler, TensorBoard
+    TFV1 = True
+except:
+    import tensorflow.keras as keras
+    from tensorflow.keras import backend as K
+    from tensorflow.keras import optimizers
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Input, Dense, Dropout
+    from tensorflow.keras.callbacks import Callback, ModelCheckpoint, ReduceLROnPlateau, LearningRateScheduler, TensorBoard
+    TFV2 = True
+
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from scipy.stats.stats import pearsonr
+
+# allows a check of sys.modules, dependencies cause exception in "import candle"
+import sys
 
 import uno as benchmark
 import candle
 
 import uno_data
 from uno_data import CombinedDataLoader, CombinedDataGenerator, DataFeeder
-
 
 logger = logging.getLogger(__name__)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -36,8 +56,10 @@ def set_seed(seed):
     random.seed(seed)
 
     if K.backend() == 'tensorflow':
-        import tensorflow as tf
-        tf.set_random_seed(seed)
+        if TFV1:
+            tf.set_random_seed(seed)
+        else:
+             tf.random.set_seed(seed)
         candle.set_parallelism_threads()
 
 
@@ -282,11 +304,10 @@ def run(params):
     logger.info('Params: {}'.format(params))
 
     if (len(args.gpus) > 0):
-        import tensorflow as tf
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
         config.gpu_options.visible_device_list = ",".join(map(str, args.gpus))
-        K.set_session(tf.Session(config=config))
+        tf.compat.v1.keras.backend.set_session(tf.compat.v1.Session(config=config))
 
     loader = CombinedDataLoader(seed=args.rng_seed)
     loader.load(cache=args.cache,
@@ -478,10 +499,11 @@ def run(params):
 
         # prediction on holdout(test) when exists or use validation set
         if test_gen.size > 0:
+            trunc_size = test_gen.steps * test_gen.batch_size
             df_val = test_gen.get_response(copy=True)
+            df_val = df_val[:trunc_size]
             y_val = df_val[target].values
-            y_val_pred = model.predict_generator(test_gen, test_gen.steps + 1)
-            y_val_pred = y_val_pred[:test_gen.size]
+            y_val_pred = model.predict(test_gen)
         else:
             if args.no_gen:
                 y_val_pred = model.predict(x_val_list, batch_size=args.batch_size)

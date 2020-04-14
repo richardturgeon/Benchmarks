@@ -1,14 +1,16 @@
 from __future__ import absolute_import
-
-
+"""
 from keras import backend as K
-
 from keras.callbacks import Callback
-
 from keras.models import Model
 from keras.layers import Dense
-
 from keras.utils import np_utils
+"""
+from tensorflow.keras import backend as K
+from tensorflow.keras.callbacks import Callback
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense
+# from tensorflow.keras.utils import np_utils   error in TF2
 
 import numpy as np
 
@@ -247,9 +249,9 @@ def modify_labels(numclasses_out, ytrain, ytest, yval):
     assert( classesval == classestest )
     assert( (classestrain+1) == numclasses_out ) # In this case only one other slot for abstention is created
 
-    labels_train = np_utils.to_categorical( ytrain, numclasses_out )
-    labels_test = np_utils.to_categorical( ytest, numclasses_out )
-    labels_val = np_utils.to_categorical( yval, numclasses_out )
+    labels_train = tensorflow.keras.utils.to_categorical( ytrain, numclasses_out )
+    labels_test = tensorflow.keras.utils.to_categorical( ytest, numclasses_out )
+    labels_val = tensorflow.keras.utils.to_categorical( yval, numclasses_out )
 
     # For sanity check
     mask_vec = np.zeros(labels_train.shape)

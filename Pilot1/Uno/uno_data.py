@@ -9,11 +9,20 @@ import sys
 
 import numpy as np
 import pandas as pd
-import keras
+import tensorflow as tf
+
+try:
+    import keras
+except:
+    import tensorflow.keras as keras
 
 from itertools import cycle, islice
 
-from sklearn.preprocessing import Imputer
+try:
+    from sklearn.preprocessing import Imputer
+except:
+    from sklearn.impute import SimpleImputer as Imputer
+
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 from sklearn.model_selection import ShuffleSplit, KFold
 

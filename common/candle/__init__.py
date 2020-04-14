@@ -70,7 +70,7 @@ from P1_utils import combat_batch_effect_removal
 
 # import benchmark-dependent utils
 import sys
-if 'keras' in sys.modules:
+if 'keras' in sys.modules or 'tensorflow.keras' in sys.modules:
     print ('Importing candle utils for keras')
     #import from keras_utils
     #from keras_utils import dense
@@ -87,7 +87,7 @@ if 'keras' in sys.modules:
     from keras_utils import r2
     from keras_utils import mae
     from keras_utils import mse
-        
+
     from viz_utils import plot_metrics
 
     from solr_keras import CandleRemoteMonitor

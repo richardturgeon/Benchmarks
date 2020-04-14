@@ -1,0 +1,1 @@
+time python uno_baseline_keras2_tf2.py --config_file uno_auc_model.txt --use_exported_data /vol/ml/turgeon/uno-auc-data/top_21_auc_1fold.uno.h5 --es True --epochs 25 --save_path save/uno-tf2
